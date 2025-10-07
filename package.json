@@ -18,6 +18,9 @@
   },
   "private": true,
   "cds": {
+    "features": {
+      "assert_integrity": "db"
+    },
     "requires": {
       "[production]": {
         "auth": "xsuaa",
