@@ -1,156 +1,175 @@
 _schema-version: 3.3.0
 ID: partner-reference-application
+description: A simple CAP project.
 version: 1.0.0
-description: "A simple CAP project."
+modules:
+- name: partner-reference-application-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: partner-reference-application-auth
+  - name: partner-reference-application-db
+  - name: partner-reference-application-destination
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+    instances: 1
+  build-parameters:
+    builder: npm-ci
+- name: partner-reference-application-mtx
+  type: nodejs
+  path: gen/mtx/sidecar
+  requires:
+  - name: partner-reference-application-registry
+  - name: app-api
+    properties:
+      SUBSCRIPTION_URL: ~{app-protocol}://\${tenant_subdomain}-~{app-uri}
+  - name: partner-reference-application-destination
+  - name: partner-reference-application-html5-runtime
+  - name: partner-reference-application-auth
+  - name: partner-reference-application-db
+  provides:
+  - name: mtx-api
+    properties:
+      mtx-url: ${default-url}
+  parameters:
+    disk-quota: 512M
+    instances: 1
+    memory: 256M
+  build-parameters:
+    builder: npm-ci
+- name: partner-reference-application
+  type: approuter.nodejs
+  path: app/router
+  properties:
+    TENANT_HOST_PATTERN: ^(.*)-${default-uri}
+  requires:
+  - name: srv-api
+    group: destinations
+    properties:
+      forwardAuthToken: true
+      name: srv-api
+      url: ~{srv-url}
+  - name: mtx-api
+    group: destinations
+    properties:
+      name: mtx-api
+      url: ~{mtx-url}
+  - name: partner-reference-application-auth
+  - name: partner-reference-application-destination
+  - name: partner-reference-application-html5-runtime
+  provides:
+  - name: app-api
+    properties:
+      app-protocol: ${protocol}
+      app-uri: ${default-uri}
+  parameters:
+    disk-quota: 256M
+    keep-existing-routes: true
+    memory: 256M
+- name: partner-reference-application-app-deployer
+  type: com.sap.application.content
+  path: gen
+  requires:
+  - name: partner-reference-application-auth
+  - name: srv-api
+  - name: partner-reference-application-html5-repo-host
+    parameters:
+      config:
+        HTML5Runtime_enabled: true
+      content-target: true
+  build-parameters:
+    build-result: app/
+    requires:
+    - artifacts:
+      - poetryslams.zip
+      name: poetryslams
+      target-path: app/
+- name: poetryslams
+  type: html5
+  path: app/poetryslams
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: partner-reference-application-auth
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      oauth2-configuration:
+        redirect-uris:
+        - https://*~{app-api/app-uri}/**
+      tenant-mode: shared
+      xsappname: partner-reference-application-${org}-${space}
+    path: ./xs-security.json
+    service: xsuaa
+    service-plan: application
+  requires:
+  - name: app-api
+- name: partner-reference-application-db
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: service-manager
+    service-plan: container
+- name: partner-reference-application-registry
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      appName: partner-reference-application-${org}-${space}
+      appUrls:
+        callbackTimeoutMillis: 300000
+        getDependencies: ~{mtx-api/mtx-url}/-/cds/saas-provisioning/dependencies
+        onSubscription: ~{mtx-api/mtx-url}/-/cds/saas-provisioning/tenant/{tenantId}
+        onSubscriptionAsync: true
+        onUnSubscriptionAsync: true
+        onUpdateDependenciesAsync: true
+      category: Category
+      description: A simple CAP project.
+      displayName: partner-reference-application
+      xsappname: partner-reference-application-${org}-${space}
+    service: saas-registry
+    service-plan: application
+  requires:
+  - name: mtx-api
+- name: partner-reference-application-destination
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: false
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+    service: destination
+    service-plan: lite
+- name: partner-reference-application-html5-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-host
+- name: partner-reference-application-html5-runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-runtime
 parameters:
-  enable-parallel-deployments: true
   deploy_mode: html5-repo
+  enable-parallel-deployments: true
 build-parameters:
   before-all:
-    - builder: custom
-      commands:
-        - npm ci
-        - npx cds build --production
-modules:
-  - name: partner-reference-application-srv
-    type: nodejs
-    path: gen/srv
-    parameters:
-      instances: 1
-      buildpack: nodejs_buildpack
-    build-parameters:
-      builder: npm-ci
-    provides:
-      - name: srv-api # required by consumers of CAP services (e.g. approuter)
-        properties:
-          srv-url: ${default-url}
-    requires:
-      - name: partner-reference-application-auth
-      - name: partner-reference-application-db
-      - name: partner-reference-application-destination
-
-  - name: partner-reference-application-mtx
-    type: nodejs
-    path: gen/mtx/sidecar
-    build-parameters:
-      builder: npm-ci
-    parameters:
-      instances: 1
-      memory: 256M
-      disk-quota: 512M
-    provides:
-      - name: mtx-api
-        properties:
-          mtx-url: ${default-url}
-    requires:
-      - name: partner-reference-application-registry
-      - name: app-api
-        properties:
-          SUBSCRIPTION_URL: ~{app-protocol}://\${tenant_subdomain}-~{app-uri}
-      - name: partner-reference-application-destination
-      - name: partner-reference-application-html5-runtime
-      - name: partner-reference-application-auth
-      - name: partner-reference-application-db
-
-  - name: partner-reference-application
-    type: approuter.nodejs
-    path: app/router
-    parameters:
-      keep-existing-routes: true
-      disk-quota: 256M
-      memory: 256M
-    properties:
-      TENANT_HOST_PATTERN: "^(.*)-${default-uri}"
-    requires:
-      - name: srv-api
-        group: destinations
-        properties:
-          name: srv-api # must be used in xs-app.json as well
-          url: ~{srv-url}
-          forwardAuthToken: true
-      - name: mtx-api
-        group: destinations
-        properties:
-          name: mtx-api # must be used in xs-app.json as well
-          url: ~{mtx-url}
-      - name: partner-reference-application-auth
-      - name: partner-reference-application-destination
-      - name: partner-reference-application-html5-runtime
-    provides:
-      - name: app-api
-        properties:
-          app-protocol: ${protocol}
-          app-uri: ${default-uri}
-
-  - name: partner-reference-application-app-deployer
-    type: com.sap.application.content
-    path: gen
-    requires:
-      - name: partner-reference-application-auth
-      - name: srv-api
-      - name: partner-reference-application-html5-repo-host
-        parameters:
-          content-target: true
-          config:
-            HTML5Runtime_enabled: true
-    build-parameters:
-      build-result: app/
-      requires:
-
-
-resources:
-  - name: partner-reference-application-auth
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: xsuaa
-      service-plan: application
-      path: ./xs-security.json
-      config:
-        xsappname: partner-reference-application-${org}-${space}
-        tenant-mode: shared
-        oauth2-configuration:
-          redirect-uris:
-            - https://*~{app-api/app-uri}/**
-    requires:
-      - name: app-api
-  - name: partner-reference-application-db
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: service-manager
-      service-plan: container
-  - name: partner-reference-application-registry
-    type: org.cloudfoundry.managed-service
-    requires:
-      - name: mtx-api
-    parameters:
-      service: saas-registry
-      service-plan: application
-      config:
-        xsappname: partner-reference-application-${org}-${space}
-        appName: partner-reference-application-${org}-${space}
-        displayName: partner-reference-application
-        description: A simple CAP project.
-        category: 'Category'
-        appUrls:
-          getDependencies: ~{mtx-api/mtx-url}/-/cds/saas-provisioning/dependencies
-          onSubscription: ~{mtx-api/mtx-url}/-/cds/saas-provisioning/tenant/{tenantId}
-          onSubscriptionAsync: true
-          onUnSubscriptionAsync: true
-          onUpdateDependenciesAsync: true
-          callbackTimeoutMillis: 300000 # Increase if your deployments are taking longer than that
-  - name: partner-reference-application-destination
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: destination
-      service-plan: lite
-
-  - name: partner-reference-application-html5-repo-host
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: html5-apps-repo
-      service-plan: app-host
-  - name: partner-reference-application-html5-runtime
-    type: org.cloudfoundry.managed-service
-    parameters:
-      service: html5-apps-repo
-      service-plan: app-runtime
+  - builder: custom
+    commands:
+    - npm ci
+    - npx cds build --production
