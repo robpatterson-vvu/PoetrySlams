@@ -1,28 +1,26 @@
-# yaml-language-server: $schema=https://sap.github.io/ui5-tooling/schema/ui5.yaml.json
-
-specVersion: "3.1"
+specVersion: '2.5'
 metadata:
   name: visitors
 type: application
 server:
   customMiddleware:
+    # The proxy middleware provides you with the capabilities to connect to different backend systems or to switch the SAPUI5 version of the application
     - name: fiori-tools-proxy
       afterMiddleware: compression
       configuration:
-        ignoreCertErrors: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
+        ignoreCertError: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
+        backend:
+          - path: /visitorservice
+            url: http://localhost:4004
         ui5:
           path:
             - /resources
             - /test-resources
-          url: https://sapui5.hana.ondemand.com
+          url: https://ui5.sap.com
+    # With the application reload middleware, developers can preview SAP Fiori elements applications while developing or configuring them. Whenever a file relevant for SAP Fiori elements is changed, the application reload middleware will refresh the application preview.
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:
         port: 35729
         path: webapp
         delay: 300
-    - name: fiori-tools-preview
-      afterMiddleware: fiori-tools-appreload
-      configuration:
-        flp:
-          theme: sap_horizon
