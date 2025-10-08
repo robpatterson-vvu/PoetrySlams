@@ -1,4 +1,5 @@
 {
+  "welcomeFile": "poetryslams/",
   "routes": [
     {
       "source": "^/-/cds/.*",
@@ -6,11 +7,10 @@
       "authenticationType": "none"
     },
     {
-      "source": "^/(.*)$",
+      "source": "^(.*)$",
       "target": "$1",
-      "destination": "srv-api",
-      "csrfProtection": true
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "xsuaa"
     }
-  ],
-  "welcomeFile": "/poetryslams"
+  ]
 }
