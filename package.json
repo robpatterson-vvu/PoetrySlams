@@ -30,14 +30,31 @@
       "assert_integrity": "db"
     },
     "requires": {
+      "db": {
+        "kind": "sql"
+      },
+      "uaa": {
+        "kind": "xsuaa"
+      },
+      "[development]": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": ":memory:"
+          }
+        }
+      },
       "[production]": {
-        "auth": "xsuaa",
         "multitenancy": true
       },
-      "destinations": true,
-      "html5-repo": true
-    },
-    "profile": "with-mtx-sidecar"
+      "sql": {
+        "native_hana_associations": false
+      },
+      "hana": {
+        "deploy-format": "hdbtable"
+      },
+      "profile": "with-mtx-sidecar"
+    }
   },
   "workspaces": [
     "app/*"

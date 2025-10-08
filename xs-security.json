@@ -1,6 +1,14 @@
 {
   "scopes": [
     {
+      "name": "$XSAPPNAME.PoetrySlamFull",
+      "description": "Full Read/Write Access to PoetrySlams"
+    },
+    {
+      "name": "$XSAPPNAME.PoetrySlamRestricted",
+      "description": "Restricted Read/Write Access to PoetrySlams"
+    },
+    {
       "name": "$XSAPPNAME.mtcallback",
       "description": "Subscription via SaaS Registry",
       "grant-as-authority-to-apps": [
@@ -9,6 +17,18 @@
     }
   ],
   "attributes": [],
-  "role-templates": [],
-  "authorities-inheritance": false
+  "role-templates": [
+    {
+      "name": "PoetrySlamManagerRole",
+      "description": "Full Access to PoetrySlams",
+      "scope-references": ["$XSAPPNAME.PoetrySlamFull"],
+      "attribute-references": []
+    },
+    {
+      "name": "PoetrySlamVisitorRole",
+      "description": "Restricted Access to PoetrySlams for Visitors",
+      "scope-references": ["$XSAPPNAME.PoetrySlamRestricted"],
+      "attribute-references": []
+    }
+  ]
 }
