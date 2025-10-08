@@ -1,31 +1,44 @@
 {
   "name": "partner-reference-application",
-  "version": "1.0.0",
-  "description": "A simple CAP project.",
+  "version": "2.3.0",
+  "description": "SAP Partner Reference Application Version 2.0",
+  "repository": "github.com/sap-samples/partner-reference-application.git",
+  "author": "SAP",
+  "license": "SAP SAMPLE CODE LICENSE",
+  "keywords": [
+    "BTP",
+    "Partner",
+    "BusinessTechnologyPlatform"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "dependencies": {
-    "@cap-js/hana": "^2",
-    "@sap/cds": "^9",
+    "@cap-js/hana": "^2.1.1",
+    "@sap/cds": "^9.1.0",
     "@sap/cds-common-content": "^3.0.1",
-    "@sap/cds-mtxs": "^3",
-    "@sap/xssec": "^4",
-    "express": "^4"
+    "@sap/cds-mtxs": "^3.1.0",
+    "@sap/xssec": "^4.9.0",
+    "express": "^4.21.2",
+    "rimraf": "^6.0.1"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^2",
-    "@sap/cds-dk": "^9",
-    "cds-plugin-ui5": "^0.13.0",
-    "rimraf": "^5.0.5",
-    "mbt": "^1.2.29"
+    "@cap-js/cds-test": "^0.4.0",
+    "@cap-js/sqlite": "^2.0.2",
+    "@sap/cds-dk": "^9.1.1",
+    "@sap/ux-specification": "^1.136.2",
+    "mocha": "^11.7.1",
+    "sinon": "^21.0.0"
   },
   "scripts": {
     "start": "cds-serve",
-    "watch-poetryslams": "cds watch --open poetryslams/index.html?sap-ui-xx-viewCache=false --livereload false",
-    "undeploy": "cf undeploy partner-reference-application --delete-services --delete-service-keys --delete-service-brokers",
+    "watch-poetryslams": "cds watch --open poetryslams/webapp/index.html?sap-ui-xx-viewCache=false",
+    "watch-visitors": "cds watch --open visitors/webapp/index.html?sap-ui-xx-viewCache=false",
+    "undeploy": "cf undeploy poetry-slams --delete-services --delete-service-keys --delete-service-brokers",
     "build": "rimraf resources mta_archives && mbt build --mtar archive",
-    "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
-    "watch-visitors": "cds watch --open visitors/index.html?sap-ui-xx-viewCache=false --livereload false"
+    "deploy": "cf deploy mta_archives/archive.mtar -f --retries 1",
+    "test": "mocha"
   },
-  "private": true,
   "cds": {
     "features": {
       "assert_integrity": "db"
@@ -47,19 +60,13 @@
       },
       "[production]": {
         "multitenancy": true
-      },
-      "sql": {
-        "native_hana_associations": false
-      },
-      "hana": {
-        "deploy-format": "hdbtable"
-      },
-      "profile": "with-mtx-sidecar"
-    }
+      }
+    },
+    "hana": {
+      "deploy-format": "hdbtable"
+    },
+    "profile": "with-mtx-sidecar"
   },
-  "workspaces": [
-    "app/*"
-  ],
   "sapux": [
     "app/poetryslams",
     "app/visitors"

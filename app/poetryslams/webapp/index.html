@@ -1,35 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Poetry Slams</title>
-    <style>
-        html, body, body > div, #container, #container-uiarea {
-            height: 100%;
-        }
-    </style>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Poetry Slam Manager</title>
+    <link type="text/css" rel="stylesheet" href="util/initAppStyle.css" />
+
     <script
-        id="sap-ui-bootstrap"
-        src="https://sapui5.hana.ondemand.com/1.141.0/resources/sap-ui-core.js"
-        data-sap-ui-theme="sap_horizon"
-        data-sap-ui-resource-roots='{
-            "poetryslams": "./"
-        }'
-        data-sap-ui-on-init="module:sap/ui/core/ComponentSupport"
-        data-sap-ui-compat-version="edge"
-        data-sap-ui-async="true"
-        data-sap-ui-frame-options="trusted"
+      id="sap-ui-bootstrap"
+      src="https://sapui5.hana.ondemand.com/1.134.1/resources/sap-ui-core.js"
+      data-sap-ui-libs="sap.uxap"
+      data-sap-ui-theme="sap_horizon"
+      data-sap-ui-resourceroots='{
+                "poetryslams": "./"
+            }'
+      data-sap-ui-oninit="module:sap/ui/core/ComponentSupport"
+      data-sap-ui-compatVersion="edge"
+      data-sap-ui-async="true"
     ></script>
-</head>
-<body class="sapUiBody sapUiSizeCompact" id="content">
+  </head>
+  <body class="sapUiBody sapUiSizeCompact" id="content">
     <div
-        data-sap-ui-component
-        data-name="poetryslams"
-        data-id="container"
-        data-settings='{"id" : "poetryslams"}'
-        data-handle-validation="true"
+      data-sap-ui-component
+      data-name="poetryslams"
+      data-id="container"
+      data-settings='{"id" : "poetryslams"}'
+      data-handle-validation="true"
     ></div>
-</body>
+  </body>
 </html>

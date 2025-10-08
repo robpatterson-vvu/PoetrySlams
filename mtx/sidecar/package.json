@@ -1,17 +1,17 @@
 {
   "name": "partner-reference-application-mtx",
   "dependencies": {
-    "@cap-js/hana": "^2",
-    "@sap/cds": "^9",
-    "@sap/cds-mtxs": "^3",
-    "@sap/xssec": "^4",
-    "express": "^4"
-  },
-  "devDependencies": {
-    "@cap-js/sqlite": "^2"
+    "@cap-js/hana": "^2.1.1",
+    "@sap/cds": "^9.1.0",
+    "@sap/cds-mtxs": "^3.1.0",
+    "@sap/xssec": "^4.9.0",
+    "express": "^4.21.2"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2.0.2"
   },
   "scripts": {
     "start": "cds-serve"
@@ -19,8 +19,17 @@
   "cds": {
     "profile": "mtx-sidecar",
     "requires": {
+      "auth": "xsuaa",
       "destinations": true,
-      "html5-repo": true
+      "html5-host": {
+        "vcap": {
+          "label": "html5-apps-repo",
+          "plan": "app-host"
+        },
+        "subscriptionDependency": {
+          "uaa": "xsappname"
+        }
+      }
     }
   }
 }
