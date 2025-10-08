@@ -22,7 +22,8 @@
     "watch-poetryslams": "cds watch --open poetryslams/index.html?sap-ui-xx-viewCache=false --livereload false",
     "undeploy": "cf undeploy partner-reference-application --delete-services --delete-service-keys --delete-service-brokers",
     "build": "rimraf resources mta_archives && mbt build --mtar archive",
-    "deploy": "cf deploy mta_archives/archive.mtar --retries 1"
+    "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
+    "watch-visitors": "cds watch --open visitors/index.html?sap-ui-xx-viewCache=false --livereload false"
   },
   "private": true,
   "cds": {
@@ -60,6 +61,7 @@
     "app/*"
   ],
   "sapux": [
-    "app/poetryslams"
+    "app/poetryslams",
+    "app/visitors"
   ]
 }
